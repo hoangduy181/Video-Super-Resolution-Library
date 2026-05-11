@@ -1862,7 +1862,7 @@ RNLERRORTYPE RNLDeinit()
 	    ippsFree(gIppCtx.pbufferY[threadIdx]);
         for (int i = 0; i < gPasses; i++)
         {
-            if (gIppCtx.segZones && gIppCtx.segZones[i]) {
+            if (gIppCtx.segZones[i]) {
                 SAFE_ARR_DELETE(gIppCtx.segZones[i][threadIdx].inYUpscaled);
                 SAFE_ARR_DELETE(gIppCtx.segZones[i][threadIdx].inYUpscaled32f);
                 SAFE_ARR_DELETE(gIppCtx.segZones[i][threadIdx].raisr32f);

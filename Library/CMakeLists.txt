@@ -23,6 +23,14 @@ endif()
 
 add_library(raisr STATIC ${SOURCES} ${HEADERS})
 
+# Raisr.cpp #includes Raisr_AVX256.cpp, so AVX2 intrinsics are compiled in that
+# translation unit. A standalone Raisr_AVX256.cpp compile may not instantiate
+# those inline bodies, so -march=native alone can appear to "work" for that file
+# while Raisr.cpp.o fails (e.g. Docker/VM CPUs where native_tune omits AVX).
+if(UNIX)
+    target_compile_options(raisr PRIVATE -mavx2 -mfma)
+endif()
+
 # Link our library
 # for IPP
 if( UNIX )
