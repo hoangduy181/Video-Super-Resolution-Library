@@ -1,0 +1,29 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+Subject: [PATCH] libavformat: silence vorbiscomment snprintf truncation warnings
+
+Chapter numbers are written as three decimal digits; timestamps are written
+as twelve bytes. Bound inputs so snprintf into stack buffers cannot truncate,
+satisfying -Wformat-truncation.
+---
+ libavformat/vorbiscomment.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
+
+diff --git a/libavformat/vorbiscomment.c b/libavformat/vorbiscomment.c
+--- a/libavformat/vorbiscomment.c
++++ b/libavformat/vorbiscomment.c
+@@ -99,9 +99,13 @@ int ff_vorbiscomment_write(AVIOContext *pb, const AVDictionary *m,
+             h  = s / 3600;
+             m  = (s / 60) % 60;
+             ms = av_rescale_q(chp->start, chp->time_base, av_make_q(   1, 1000)) % 1000;
+             s  = s % 60;
+-            snprintf(chapter_number, sizeof(chapter_number), "%03d", i);
++            h  = av_clip(h, 0, 99);
++            m  = av_clip(m, 0, 59);
++            s  = av_clip(s, 0, 59);
++            ms = av_clip(ms, 0, 999);
++            snprintf(chapter_number, sizeof(chapter_number), "%03d", i % 1000);
+             snprintf(chapter_time, sizeof(chapter_time), "%02d:%02d:%02d.%03d", h, m, s, ms);
+             avio_wl32(pb, 10 + 1 + 12);
+             avio_write(pb, "CHAPTER", 7);
+             avio_write(pb, chapter_number, 3);
+

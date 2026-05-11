@@ -1,0 +1,21 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+Subject: [PATCH] libavformat: enlarge RTSP SETUP cmd buffer for Transport line
+
+"Transport: %s\r\n" can need more than MAX_URL_SIZE bytes when transport
+fills a MAX_URL_SIZE buffer, triggering -Wformat-truncation with hardening.
+---
+ libavformat/rtsp.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/libavformat/rtsp.c b/libavformat/rtsp.c
+--- a/libavformat/rtsp.c
++++ b/libavformat/rtsp.c
+@@ -1460,7 +1460,7 @@ int ff_rtsp_make_setup_request(AVFormatContext *s, const char *host, int port,
+     int rtx = 0, j, i, err, interleave = 0, port_off = 0;
+     RTSPStream *rtsp_st;
+     RTSPMessageHeader reply1, *reply = &reply1;
+-    char cmd[MAX_URL_SIZE];
++    char cmd[MAX_URL_SIZE + 256];
+     const char *trans_pref;
+ 
+     memset(&reply1, 0, sizeof(reply1));
